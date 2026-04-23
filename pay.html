@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>Pay at DesignE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --primary: #f59e0b;
+            --accent-main: #ff6b6b;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f0f0f0;
+            --text-muted: #8a8a9a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            background-image:
+                radial-gradient(ellipse at 30% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .payment-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            width: 100%;
+            max-width: 380px;
+            margin: 1rem;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent-main));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .amount-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            color: white;
+        }
+
+        .details {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .details span {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.3rem 0.8rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .qr-container {
+            background: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            display: block;
+            margin: 0 auto 1.5rem auto;
+            width: fit-content;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.1);
+            animation: qrPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes qrPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(245, 158, 11, 0.2);
+            }
+        }
+
+        .qr-img {
+            width: 180px;
+            height: 180px;
+            display: block;
+        }
+
+        .scan-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .pay-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .pay-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.85rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .pay-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .pay-btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-gpay {
+            background: #1a1a2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-phonepe {
+            background: #5f259f;
+        }
+
+        .btn-paytm {
+            background: #00325b;
+        }
+
+        .btn-generic {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--primary), var(--accent-main));
+            font-size: 0.95rem;
+            padding: 1rem;
+        }
+
+        .btn-generic:hover {
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+        }
+
+        .footer-note {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .footer-note i {
+            color: var(--primary);
+            margin-right: 0.3rem;
+        }
+
+        @media (max-width: 480px) {
+            .payment-card {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                border: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="payment-card">
+        <div class="logo">DesignE</div>
+        <p class="subtitle">Complete your payment</p>
+
+        <div class="amount-display" id="display-amount">₹0</div>
+
+        <div class="details" id="display-details">
+            <span><i class="fas fa-chair"></i> Table --</span>
+            <span><i class="fas fa-receipt"></i> #--</span>
+        </div>
+
+        <div class="qr-container">
+            <img id="qr-image" src="" alt="Payment QR" class="qr-img">
+        </div>
+
+        <p class="scan-label"><i class="fas fa-qrcode"></i> Scan to Pay</p>
+
+        <div class="pay-options">
+            <a id="gpay-link" href="#" class="pay-btn btn-gpay">
+                <i class="fab fa-google-pay fa-lg"></i> GPay
+            </a>
+            <a id="phonepe-link" href="#" class="pay-btn btn-phonepe">
+                <i class="fas fa-mobile-alt"></i> PhonePe
+            </a>
+            <a id="paytm-link" href="#" class="pay-btn btn-paytm">
+                <i class="fas fa-wallet"></i> Paytm
+            </a>
+            <a id="pay-link" href="#" class="pay-btn btn-generic">
+                <i class="fas fa-university"></i> Open Any UPI App
+            </a>
+        </div>
+
+        <p class="footer-note"><i class="fas fa-lock"></i> Secure payment via UPI</p>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script>
+        // Extract parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = urlParams.get('am') || '0';
+        const table = urlParams.get('tn') || '--';
+        const orderId = urlParams.get('id') || '--';
+
+        // Initial UI Update
+        document.getElementById('display-amount').innerText = `₹${amount}`;
+        document.getElementById('display-details').innerHTML = `
+            <span><i class="fas fa-chair"></i> Table ${table}</span>
+            <span><i class="fas fa-receipt"></i> #${orderId}</span>
+        `;
+
+        // Default settings
+        let upiId = "raghavbhatia332@okhdfcbank";
+        let storeName = "DesignE";
+
+        // Fetch dynamic settings from Firebase (db is already initialized in firebase-config.js)
+        db.ref('settings').once('value').then(snapshot => {
+            if (snapshot.exists()) {
+                const settings = snapshot.val();
+                if (settings.upiId) upiId = settings.upiId;
+                if (settings.storeName) storeName = settings.storeName;
+                
+                // Update Store Name in UI
+                document.querySelector('.logo').innerText = storeName;
+                document.title = `Pay at ${storeName}`;
+            }
+            generatePaymentLinks();
+        }).catch(err => {
+            console.error("Error fetching settings:", err);
+            generatePaymentLinks(); // Proceed with defaults
+        });
+
+        function generatePaymentLinks() {
+            // UPI Logic
+            const note = encodeURIComponent('Table ' + table + ' - ' + orderId);
+            const upiBase = `pa=${upiId}&pn=${encodeURIComponent(storeName)}&am=${amount}&cu=INR&tn=${note}`;
+            const upiLink = `upi://pay?${upiBase}`;
+
+            // App specific links
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const gpayScheme = isIOS ? 'gpay://upi/pay' : 'tez://upi/pay';
+
+            document.getElementById('pay-link').href = upiLink;
+            document.getElementById('gpay-link').href = `${gpayScheme}?${upiBase}`;
+            document.getElementById('phonepe-link').href = `phonepe://pay?${upiBase}`;
+            document.getElementById('paytm-link').href = `paytmmp://pay?${upiBase}`;
+
+            // Generate QR
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
+            document.getElementById('qr-image').src = qrUrl;
+        }
+    </script>
+</body>
+
+</html>
