@@ -139,6 +139,13 @@ window.saveOwnerSettings = function() {
         ownerId,
         ownerPass
     }).then(() => {
+        // --- MASTER SYNC: Send credentials back to SaaS Master DB ---
+        if (typeof saasDb !== 'undefined' && typeof LICENSE_ID !== 'undefined') {
+            saasDb.ref('licenses/' + LICENSE_ID).update({
+                credentials: { id: ownerId, pass: ownerPass },
+                lastConfigUpdate: Date.now()
+            });
+        }
         alert('Configuration updated successfully!');
     }).catch(err => {
         console.error('Failed to save settings:', err);

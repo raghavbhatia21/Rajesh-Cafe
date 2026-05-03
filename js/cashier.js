@@ -156,7 +156,7 @@ function renderBills(sessions) {
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
-                    <button class="nav-btn" style="flex: 1; justify-content: center; padding: 0.5rem;" onclick="sendBillWhatsApp('${itemsString.replace(/'/g, "\\'")}', '${session.total}', '${session.tableNo}', '${session.customerPhone || ''}', '${id.substr(-6).toUpperCase()}', '${(session.customerName || 'Guest').replace(/'/g, "\\'")}')">
+                    <button class="nav-btn" style="flex: 1; justify-content: center; padding: 0.5rem;" onclick="sendBillWhatsApp('${itemsString.replace(/'/g, "\\'")}', '${session.total}', '${session.tableNo}', '${session.customerPhone || ''}', '${id.substr(-6).toUpperCase()}', '${(session.customerName || 'Guest').replace(/'/g, "\\'")}', '${id}')">
                         <i class="fab fa-whatsapp"></i>
                     </button>
                     <button class="nav-btn" style="flex: 1; justify-content: center; padding: 0.5rem;" onclick="showPaymentQR('${session.total}', '${session.tableNo}')">
@@ -229,14 +229,14 @@ window.markAsPaid = (sessionId, tableNo, method) => {
     }
 };
 
-window.sendBillWhatsApp = (items, total, tableNo, phone, orderId, customerName) => {
+window.sendBillWhatsApp = (items, total, tableNo, phone, orderId, customerName, sessionId) => {
     if (!phone) {
         alert("Phone number not found for this session.");
         return;
     }
 
     const baseUrl = window.location.origin + window.location.pathname.split('/').slice(0, -2).join('/');
-    const paymentUrl = `${baseUrl}/pay.html?am=${total}&tn=${tableNo}&id=${orderId}`;
+    const paymentUrl = `${baseUrl}/pay.html?sid=${sessionId}`;
 
     const message = `🧾 *Bill from DesignE*\n\nCustomer: ${customerName}\nOrder ID: #${orderId}\nTable: ${tableNo}\nItems: ${items}\n-------------------\nTotal: *₹${total}*\n-------------------\n\n🔗 *Pay Online:* ${paymentUrl}\n\nThank you for visiting, ${customerName}! ✨`;
 
