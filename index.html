@@ -126,6 +126,32 @@
         </div>
     </div>
 
+    <!-- Bill Summary Modal -->
+    <div id="bill-summary-modal" class="modal-overlay">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h2>Order Summary</h2>
+                <button id="close-bill-summary"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="bill-items-list" style="max-height: 50vh; overflow-y: auto; margin: 1rem 0;">
+                <!-- Session items will be injected here -->
+            </div>
+            <div class="cart-summary">
+                <div class="total-row" style="border-top: 1px dashed var(--glass-border); padding-top: 1rem;">
+                    <span style="font-weight: 800;">Total Bill Amount:</span>
+                    <span id="bill-summary-total" style="font-weight: 800; color: var(--primary); font-size: 1.5rem;">₹0</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 1rem 0; line-height: 1.4;">
+                    <i class="fas fa-info-circle"></i> This summary includes all items ordered in this session. Once you request the bill, the waiter will bring it to your table.
+                </p>
+                <button id="confirm-bill-btn" class="add-btn"
+                    style="background: var(--accent-drinks); color: white; height: 55px; font-weight: 800; font-size: 1.1rem; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);">
+                    CONFIRM & REQUEST BILL
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="toast">
         <i class="fas fa-check-circle"></i>

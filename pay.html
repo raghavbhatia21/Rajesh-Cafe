@@ -193,6 +193,14 @@
             padding: 1rem;
         }
 
+        .btn-copy {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed var(--glass-border);
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
         .btn-generic:hover {
             box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
         }
@@ -208,6 +216,33 @@
             margin-right: 0.3rem;
         }
 
+        /* Toast Styles */
+        #toast {
+            visibility: hidden;
+            min-width: 200px;
+            background-color: var(--primary);
+            color: #000;
+            text-align: center;
+            border-radius: 50px;
+            padding: 12px;
+            position: fixed;
+            z-index: 10000;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+
         @media (max-width: 480px) {
             .payment-card {
                 margin: 0;
@@ -219,44 +254,92 @@
                 border: none;
             }
         }
+
+        /* Expired / Paid State */
+        .expired-state {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .expired-icon {
+            font-size: 5rem;
+            color: #22c55e;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.3));
+        }
+
+        .expired-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .expired-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
 
 <body>
     <div class="payment-card">
-        <div class="logo">DesignE</div>
-        <p class="subtitle">Complete your payment</p>
+        <div id="payment-active-section">
+            <div class="logo">DesignE</div>
+            <p class="subtitle">Complete your payment</p>
 
-        <div class="amount-display" id="display-amount">₹0</div>
+            <div class="amount-display" id="display-amount">₹0</div>
 
-        <div class="details" id="display-details">
-            <span><i class="fas fa-chair"></i> Table --</span>
-            <span><i class="fas fa-receipt"></i> #--</span>
+            <div class="details" id="display-details">
+                <span><i class="fas fa-chair"></i> Table --</span>
+                <span><i class="fas fa-receipt"></i> #--</span>
+            </div>
+
+            <div class="qr-container">
+                <img id="qr-image" src="" alt="Payment QR" class="qr-img">
+            </div>
+
+            <p class="scan-label"><i class="fas fa-qrcode"></i> Scan to Pay</p>
+
+            <div class="pay-options">
+                <a id="gpay-link" href="#" class="pay-btn btn-gpay">
+                    <i class="fab fa-google-pay fa-lg"></i> GPay
+                </a>
+                <a id="phonepe-link" href="#" class="pay-btn btn-phonepe">
+                    <i class="fas fa-mobile-alt"></i> PhonePe
+                </a>
+                <a id="paytm-link" href="#" class="pay-btn btn-paytm">
+                    <i class="fas fa-wallet"></i> Paytm
+                </a>
+                <a id="pay-link" href="#" class="pay-btn btn-generic">
+                    <i class="fas fa-university"></i> Open Any UPI App
+                </a>
+                <button onclick="copyUPI()" class="pay-btn btn-copy">
+                    <i class="fas fa-copy"></i> Copy UPI ID
+                </button>
+            </div>
+
+            <p class="footer-note"><i class="fas fa-lock"></i> Secure payment via UPI</p>
         </div>
 
-        <div class="qr-container">
-            <img id="qr-image" src="" alt="Payment QR" class="qr-img">
+        <div id="payment-expired-section" class="expired-state">
+            <div class="expired-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="expired-title">Payment Completed</div>
+            <p class="expired-text">
+                This payment session has been settled successfully. <br>
+                Thank you for your visit! ✨
+            </p>
+            <button onclick="window.location.href='index.html'" class="pay-btn btn-generic" style="width: 100%;">
+                RETURN TO MENU
+            </button>
         </div>
-
-        <p class="scan-label"><i class="fas fa-qrcode"></i> Scan to Pay</p>
-
-        <div class="pay-options">
-            <a id="gpay-link" href="#" class="pay-btn btn-gpay">
-                <i class="fab fa-google-pay fa-lg"></i> GPay
-            </a>
-            <a id="phonepe-link" href="#" class="pay-btn btn-phonepe">
-                <i class="fas fa-mobile-alt"></i> PhonePe
-            </a>
-            <a id="paytm-link" href="#" class="pay-btn btn-paytm">
-                <i class="fas fa-wallet"></i> Paytm
-            </a>
-            <a id="pay-link" href="#" class="pay-btn btn-generic">
-                <i class="fas fa-university"></i> Open Any UPI App
-            </a>
-        </div>
-
-        <p class="footer-note"><i class="fas fa-lock"></i> Secure payment via UPI</p>
     </div>
+
+    <div id="toast">UPI ID Copied!</div>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -266,42 +349,88 @@
     <script>
         // Extract parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const amount = urlParams.get('am') || '0';
-        const table = urlParams.get('tn') || '--';
-        const orderId = urlParams.get('id') || '--';
+        const sid = urlParams.get('sid'); // Secure Session ID
+        const lid = urlParams.get('lid'); // License ID (for DesignE SaaS)
+        
+        // Initial fallbacks from URL
+        let amount = parseFloat(urlParams.get('am') || '0').toFixed(2);
+        let table = urlParams.get('tn') || '--';
+        let orderId = urlParams.get('id') || '--';
 
-        // Initial UI Update
-        document.getElementById('display-amount').innerText = `₹${amount}`;
-        document.getElementById('display-details').innerHTML = `
-            <span><i class="fas fa-chair"></i> Table ${table}</span>
-            <span><i class="fas fa-receipt"></i> #${orderId}</span>
-        `;
+        // UI update with fallbacks
+        function updateUI() {
+            document.getElementById('display-amount').innerText = `₹${amount}`;
+            document.getElementById('display-details').innerHTML = `
+                <span><i class="fas fa-chair"></i> Table ${table}</span>
+                <span><i class="fas fa-receipt"></i> #${orderId}</span>
+            `;
+        }
+        updateUI();
 
         // Default settings
         let upiId = "raghavbhatia332@okhdfcbank";
         let storeName = "DesignE";
 
-        // Fetch dynamic settings from Firebase (db is already initialized in firebase-config.js)
+        // 1. Fetch Store Settings
         db.ref('settings').once('value').then(snapshot => {
             if (snapshot.exists()) {
                 const settings = snapshot.val();
                 if (settings.upiId) upiId = settings.upiId;
                 if (settings.storeName) storeName = settings.storeName;
-                
-                // Update Store Name in UI
                 document.querySelector('.logo').innerText = storeName;
                 document.title = `Pay at ${storeName}`;
             }
-            generatePaymentLinks();
+
+            // 2. Fetch Secure Data from Firebase
+            if (sid) {
+                // Fetch Digital Menu Session
+                db.ref('sessions/' + sid).on('value', snap => {
+                    const session = snap.val();
+                    if (!session) {
+                        showExpiredState("Session not found or has been removed.");
+                        return;
+                    }
+
+                    if (session.status === 'completed') {
+                        showExpiredState();
+                        return;
+                    }
+
+                    amount = parseFloat(session.total || 0).toFixed(2);
+                    table = session.tableNo || table;
+                    orderId = sid.substr(-6).toUpperCase();
+                    updateUI();
+                    generatePaymentLinks();
+                });
+            } else if (lid) {
+                // Fetch SaaS License (pointing to saasDb if needed, but here using default for simplicity or backward compatibility)
+                const targetDb = (typeof saasDb !== 'undefined') ? saasDb : db;
+                targetDb.ref('licenses/' + lid).once('value').then(snap => {
+                    const license = snap.val();
+                    if (license) {
+                        amount = parseFloat(license.onboardingAmount || license.amount || 3000).toFixed(2);
+                        table = 'SaaS';
+                        orderId = lid;
+                        updateUI();
+                    }
+                    generatePaymentLinks();
+                });
+            } else {
+                generatePaymentLinks();
+            }
         }).catch(err => {
             console.error("Error fetching settings:", err);
-            generatePaymentLinks(); // Proceed with defaults
+            generatePaymentLinks();
         });
 
         function generatePaymentLinks() {
             // UPI Logic
             const note = encodeURIComponent('Table ' + table + ' - ' + orderId);
-            const upiBase = `pa=${upiId}&pn=${encodeURIComponent(storeName)}&am=${amount}&cu=INR&tn=${note}`;
+            const tr = 'ORD' + orderId.replace(/[^a-zA-Z0-9]/g, ''); // Transaction Reference
+            
+            // Standard UPI Deep Link (RFC Format)
+            // Adding mc (Merchant Code) 0000 often helps bypass some app-side "Personal" blocks
+            const upiBase = `pa=${upiId}&pn=${encodeURIComponent(storeName)}&am=${amount}&cu=INR&tn=${note}&tr=${tr}&mc=0000`;
             const upiLink = `upi://pay?${upiBase}`;
 
             // App specific links
@@ -317,7 +446,27 @@
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
             document.getElementById('qr-image').src = qrUrl;
         }
+
+        function showExpiredState(customMsg) {
+            document.getElementById('payment-active-section').style.display = 'none';
+            document.getElementById('payment-expired-section').style.display = 'block';
+            if (customMsg) {
+                document.querySelector('.expired-text').innerText = customMsg;
+                document.querySelector('.expired-icon i').className = 'fas fa-exclamation-circle';
+                document.querySelector('.expired-icon i').style.color = 'var(--accent-main)';
+                document.querySelector('.expired-title').innerText = 'Link Inactive';
+            }
+            // Disconnect to save resources
+            firebase.database().goOffline();
+        }
+
+        function copyUPI() {
+            navigator.clipboard.writeText(upiId).then(() => {
+                const toast = document.getElementById("toast");
+                toast.className = "show";
+                setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+            });
+        }
     </script>
 </body>
-
 </html>

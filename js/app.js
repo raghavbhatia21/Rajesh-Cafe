@@ -193,9 +193,9 @@ function renderMenu(items) {
                 </button>
             `).join('');
             actionsHtml = `<div class="variant-chips" id="chips-${id}">${chipsHtml}</div>
-                           <button class="add-btn" onclick="addSelectedVariantToCart('${id}', '${item.name}')">Add to Order</button>`;
+                           <button class="add-btn" onclick="addSelectedVariantToCart('${id}', '${item.name}')">Add to Cart</button>`;
         } else {
-            actionsHtml = `<button class="add-btn" onclick="addToCart('${id}', '${item.name}', ${item.price})">Add to Order</button>`;
+            actionsHtml = `<button class="add-btn" onclick="addToCart('${id}', '${item.name}', ${item.price})">Add to Cart</button>`;
         }
 
         itemEl.innerHTML = `
@@ -284,10 +284,16 @@ function setupListeners() {
     if (placeOrderBtn) placeOrderBtn.addEventListener('click', placeOrder);
 
     const reqBillBtn = document.getElementById('request-bill-btn');
-    if (reqBillBtn) reqBillBtn.addEventListener('click', requestBill);
+    if (reqBillBtn) reqBillBtn.addEventListener('click', openBillSummary);
     
     const barReqBillBtn = document.getElementById('bar-request-bill-btn');
-    if (barReqBillBtn) barReqBillBtn.addEventListener('click', requestBill);
+    if (barReqBillBtn) barReqBillBtn.addEventListener('click', openBillSummary);
+
+    const closeBillSummary = document.getElementById('close-bill-summary');
+    if (closeBillSummary) closeBillSummary.addEventListener('click', () => document.getElementById('bill-summary-modal').classList.remove('active'));
+
+    const confirmBillBtn = document.getElementById('confirm-bill-btn');
+    if (confirmBillBtn) confirmBillBtn.addEventListener('click', requestBill);
     
     const startOrderBtnAct = document.getElementById('start-order-btn');
     if (startOrderBtnAct) startOrderBtnAct.addEventListener('click', handleTableSelection);
@@ -374,7 +380,7 @@ function handleTableSelection() {
     const errorMsg = document.getElementById('table-error');
     const startBtn = document.getElementById('start-order-btn');
 
-    const tableNo = input.value;
+    const tableNo = parseInt(input.value).toString();
     const phone = phoneInput.value;
     const name = nameInput.value;
 
@@ -575,8 +581,82 @@ function placeOrder() {
 
 function requestBill() {
     if (!sessionId) return;
+    const btn = document.getElementById('confirm-bill-btn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> REQUESTING...';
+
     firebase.database().ref('sessions/' + sessionId).update({ status: 'bill_requested', billRequestedAt: Date.now() })
-        .then(() => showToast('Bill requested! 🧾', 'success'));
+        .then(() => {
+            showToast('Bill requested! 🧾', 'success');
+            document.getElementById('bill-summary-modal').classList.remove('active');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }).catch(err => {
+            console.error("Bill request failed:", err);
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+}
+
+function openBillSummary() {
+    if (!sessionId) return;
+    renderBillSummary();
+    document.getElementById('bill-summary-modal').classList.add('active');
+    // Also close cart modal if open
+    cartModal.classList.remove('active');
+}
+
+function renderBillSummary() {
+    const billItemsList = document.getElementById('bill-items-list');
+    const billTotalEl = document.getElementById('bill-summary-total');
+    
+    billItemsList.innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-circle-notch fa-spin"></i></div>';
+
+    db.ref('sessions/' + sessionId).once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (!data || !data.items || data.items.length === 0) {
+            billItemsList.innerHTML = '<p style="text-align: center; opacity: 0.5;">No items ordered yet.</p>';
+            billTotalEl.innerText = '₹0';
+            return;
+        }
+
+        billItemsList.innerHTML = '';
+        data.items.forEach(item => {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'cart-item';
+            itemEl.style.padding = '0.8rem 0';
+            itemEl.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+            itemEl.innerHTML = `
+                <div>
+                    <div style="font-weight: 700">${item.name}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.6;">₹${item.price} x ${item.quantity}</div>
+                </div>
+                <div style="font-weight: 800; color: white;">₹${item.price * item.quantity}</div>
+            `;
+            billItemsList.appendChild(itemEl);
+        });
+
+        // Add Modifiers if any
+        if (data.modifiers && data.modifiers.length > 0) {
+            data.modifiers.forEach(mod => {
+                const calculatedAmt = mod.isPercentage ? (data.subtotal * (mod.value / 100)) : mod.value;
+                const sign = mod.type === 'discount' ? '-' : '+';
+                const modEl = document.createElement('div');
+                modEl.className = 'cart-item';
+                modEl.style.padding = '0.5rem 0';
+                modEl.style.fontSize = '0.85rem';
+                modEl.style.color = mod.type === 'discount' ? 'var(--accent-starter)' : 'var(--primary)';
+                modEl.innerHTML = `
+                    <div>${mod.label} ${mod.isPercentage ? `(${mod.value}%)` : ''}</div>
+                    <div style="font-weight: 700;">${sign}₹${Math.round(calculatedAmt)}</div>
+                `;
+                billItemsList.appendChild(modEl);
+            });
+        }
+
+        billTotalEl.innerText = `₹${data.total || 0}`;
+    });
 }
 
 window.callWaiter = () => {
